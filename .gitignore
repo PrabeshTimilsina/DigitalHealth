@@ -1,0 +1,31 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment variables
+.env
+
+# Flask and Python environment files
+venv/
+instance/
+*.pyc
+*.pyo
+*.pyd
+
+myenv/
+
+
+
+# macOS specific
+.DS_Store
+
+# Logs
+logs/
+*.log
+
+# Virtual Environment
+venv/
+images/
+models/
+/*.pt
