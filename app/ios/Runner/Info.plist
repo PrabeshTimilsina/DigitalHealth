@@ -11,7 +11,6 @@
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
-	
 	<string>6.0</string>
 	<key>CFBundleName</key>
 	<string>app</string>
@@ -56,6 +55,5 @@
 	<dict>
    <key>NSAllowsArbitraryLoads</key><true/>
 </dict>
-
 </dict>
 </plist>
