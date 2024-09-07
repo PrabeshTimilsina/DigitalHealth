@@ -18,6 +18,7 @@ class UVIndexScreen extends StatefulWidget {
 class _UVIndexScreenState extends State<UVIndexScreen> {
   String location = 'Gongabu, Kathmandu';
   double uv = 5.0;
+  int selectedIndex = -1; // Initialize with no selection
 
   Future<void> _getLocationAndUVIndex() async {
     try {
@@ -32,8 +33,8 @@ class _UVIndexScreenState extends State<UVIndexScreen> {
       setState(() {
         uv = model.current.uv;
         location = "${model.location.name}\n${model.location.country}";
+        updateSelectedUVRange(); // Update selected UV range
       });
-      updateSelectedUVRange();
     } catch (e) {
       log("Error getting location: $e");
     }
@@ -45,7 +46,6 @@ class _UVIndexScreenState extends State<UVIndexScreen> {
       'range': '0-3',
       'label': 'Low',
       'color': const Color(0xFF299501),
-      'isSelected': false,
       'top': 'Minimal Danger from Sun\'s UV Rays',
       'body':
           'Wear UV-blocking sunglasses to protect your eyes, and of course, to look good.\nApply sunscreen with an SPF of 15–20 to protect your skin from UV rays.',
@@ -55,7 +55,6 @@ class _UVIndexScreenState extends State<UVIndexScreen> {
       'range': '3-6',
       'label': 'Moderate',
       'color': const Color(0xFFFEED21),
-      'isSelected': false,
       'top': 'Moderate Risk of Harm from Sun Exposure',
       'body':
           'Wear UV-blocking sunglasses and apply sunscreen with an SPF of at least 30.',
@@ -65,89 +64,79 @@ class _UVIndexScreenState extends State<UVIndexScreen> {
       'range': '6-8',
       'label': 'High',
       'color': const Color(0xFFF95901),
-      'isSelected': false,
       'top': 'Moderate Risk of Harm from Unprotected Sun Exposure',
       'body':
-          'Generously apply broad-spectrum SPF 30+ sunscreen every 2 hours, even on cloudy days, and after swimming or sweating. Watch out for bright surfaces, like sand, water, and snow, which reflect UV and increase exposure.',
+          'Generously apply broad-spectrum SPF 30+ sunscreen every 2 hours, even on cloudy days, and after swimming or sweating.',
       'spf': '30+'
     },
     {
       'range': '8-10',
       'label': 'Very High',
       'color': const Color(0xFFC8224B),
-      'isSelected': false,
       'top': 'High Risk of Harm from Unprotected Sun Exposure',
       'body':
-          'Try to avoid the sun between 11 a.m. and 4 p.m. Otherwise, seek shade, cover up, wear a hat and sunglasses, and use sunscreen with SPF 50.',
+          'Seek shade, cover up, wear a hat and sunglasses, and use sunscreen with SPF 50.',
       'spf': '50'
     },
     {
       'range': '10+',
       'label': 'Extreme',
       'color': const Color(0xFF6D4ACC),
-      'isSelected': false,
       'top': 'Very High Risk of Harm from Unprotected Sun Exposure',
       'body':
-          'Apply sunscreen with an SPF of 50+, reapply frequently, and wear UV-blocking sunglasses, a wide-brimmed hat to protect the face and neck, and protective clothing to cover exposed skin.',
+          'Apply sunscreen with an SPF of 50+, reapply frequently, and wear UV-blocking sunglasses and protective clothing.',
       'spf': '50+'
     },
   ];
 
-  // Method to update the 'isSelected' property based on the UV index
+  // Update the selected index based on the UV value
   void updateSelectedUVRange() {
-    for (var item in uvScaleData) {
-      final range = item['range'];
-      if (range == '0-3' && uv < 3) {
-        item['isSelected'] = true;
-      } else if (range == '3-6' && uv >= 3 && uv < 6) {
-        item['isSelected'] = true;
-      } else if (range == '6-8' && uv >= 6 && uv < 8) {
-        item['isSelected'] = true;
-      } else if (range == '8-10' && uv >= 8 && uv < 10) {
-        item['isSelected'] = true;
-      } else if (range == '10+' && uv >= 10) {
-        item['isSelected'] = true;
-      } else {
-        item['isSelected'] = false;
-      }
+    if (uv < 3) {
+      selectedIndex = 0;
+    } else if (uv >= 3 && uv < 6) {
+      selectedIndex = 1;
+    } else if (uv >= 6 && uv < 8) {
+      selectedIndex = 2;
+    } else if (uv >= 8 && uv < 10) {
+      selectedIndex = 3;
+    } else {
+      selectedIndex = 4;
     }
   }
 
-  // Method to map UV index to colors
+  // Get specific properties based on the selected index
   Color getSunColor() {
-    var selectedItem =
-        uvScaleData.firstWhere((item) => true == item['isSelected']);
-    return selectedItem['color'];
+    return selectedIndex != -1
+        ? uvScaleData[selectedIndex]['color']
+        : Colors.yellow;
   }
 
   String getSPF() {
-    var selectedItem =
-        uvScaleData.firstWhere((item) => true == item['isSelected']);
-    return selectedItem['spf'];
+    return selectedIndex != -1 ? uvScaleData[selectedIndex]['spf'] : 'N/A';
   }
 
   String getBody() {
-    var selectedItem =
-        uvScaleData.firstWhere((item) => true == item['isSelected']);
-    return selectedItem['body'];
+    return selectedIndex != -1
+        ? uvScaleData[selectedIndex]['body']
+        : 'No information available';
   }
 
   String getDescription() {
-    var selectedItem =
-        uvScaleData.firstWhere((item) => true == item['isSelected']);
-    return selectedItem['top'];
+    return selectedIndex != -1
+        ? uvScaleData[selectedIndex]['top']
+        : 'No description available';
   }
 
-  Color getbodyText() {
-    var selectedItem =
-        uvScaleData.firstWhere((item) => true == item['isSelected']);
-    return selectedItem['color'];
+  Color getBodyTextColor() {
+    return selectedIndex != -1
+        ? uvScaleData[selectedIndex]['color']
+        : Colors.black;
   }
 
   Color getGradientYellowColor() {
-    var selectedItem =
-        uvScaleData.firstWhere((item) => true == item['isSelected']);
-    return selectedItem['color']; // Adjust opacity if needed
+    return selectedIndex != -1
+        ? uvScaleData[selectedIndex]['color']
+        : Colors.yellow;
   }
 
   @override
@@ -192,7 +181,7 @@ class _UVIndexScreenState extends State<UVIndexScreen> {
               return UVScaleItem(
                 range: item['range'],
                 label: item['label'],
-                isSelected: item['isSelected'],
+                isSelected: index == selectedIndex,
                 color: item['color'],
               );
             },
@@ -237,7 +226,7 @@ class _UVIndexScreenState extends State<UVIndexScreen> {
                 SizedBox(
                   width: 150,
                   child: Text(
-                    getDescription().toString(),
+                    getDescription(),
                     textAlign: TextAlign.right,
                     style: const TextStyle(
                       fontSize: 16,
