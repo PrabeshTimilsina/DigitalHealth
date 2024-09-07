@@ -4,8 +4,13 @@ class UVScaleItem extends StatelessWidget {
   final String range;
   final String label;
   final bool isSelected;
-
-  UVScaleItem(this.range, this.label, this.isSelected, {super.key});
+  final Color color;
+  UVScaleItem(
+      {super.key,
+      required this.color,
+      required this.range,
+      required this.label,
+      required this.isSelected});
 
   @override
   Widget build(BuildContext context) {
