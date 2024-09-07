@@ -99,9 +99,10 @@ class _UVIndexScreenState extends State<UVIndexScreen> {
             itemBuilder: (context, index) {
               final item = uvScaleData[index];
               return UVScaleItem(
-                item['range'],
-                item['label'],
-                item['isSelected'],
+                range: item['range'],
+                label: item['label'],
+                isSelected: item['isSelected'],
+                color: Colors.purple,
               );
             },
           ),
@@ -112,10 +113,15 @@ class _UVIndexScreenState extends State<UVIndexScreen> {
               crossAxisAlignment: CrossAxisAlignment.end,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  Icons.sunny,
-                  size: 40,
-                  color: getSunColor(),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: const BoxDecoration(
+                      color: Colors.white, shape: BoxShape.circle),
+                  child: Icon(
+                    Icons.sunny,
+                    size: 40,
+                    color: getSunColor(),
+                  ),
                 ),
                 Row(
                   children: [
