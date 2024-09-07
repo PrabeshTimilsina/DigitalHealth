@@ -147,7 +147,7 @@ class _UVIndexScreenState extends State<UVIndexScreen> {
   Color getGradientYellowColor() {
     var selectedItem =
         uvScaleData.firstWhere((item) => true == item['isSelected']);
-    return selectedItem['color'].withOpacity(0.6); // Adjust opacity if needed
+    return selectedItem['color']; // Adjust opacity if needed
   }
 
   @override

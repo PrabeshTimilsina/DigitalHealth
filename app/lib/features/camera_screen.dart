@@ -1,13 +1,10 @@
 import 'dart:io';
 import 'dart:math'; // For generating random predictions
+import 'package:app/models/prediction_model.dart';
+import 'package:app/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
-
-class Prediction {
-  final String result;
-  Prediction({required this.result});
-}
 
 class CameraScreen extends StatefulWidget {
   const CameraScreen({super.key});
@@ -19,7 +16,7 @@ class CameraScreen extends StatefulWidget {
 class _CameraScreenState extends State<CameraScreen> {
   File? _selectedImage;
   Prediction? _prediction;
-
+  final ApiService _apiService = ApiService();
   @override
   void initState() {
     super.initState();
@@ -200,7 +197,6 @@ class _CameraScreenState extends State<CameraScreen> {
       _selectedImage = File(returnedImage.path);
     });
 
-    // Simulate a dummy prediction
     _simulateDummyPrediction();
   }
 
@@ -219,12 +215,10 @@ class _CameraScreenState extends State<CameraScreen> {
   }
 
   // Method to simulate dummy prediction
-  void _simulateDummyPrediction() {
-    final random = Random();
-    final result = random.nextBool() ? 'Benign' : 'Malignant';
-
+  Future<void> _simulateDummyPrediction() async {
+    Prediction? prediction = await _apiService.predict(_selectedImage!);
     setState(() {
-      _prediction = Prediction(result: result);
+      _prediction = prediction;
     });
   }
 }
