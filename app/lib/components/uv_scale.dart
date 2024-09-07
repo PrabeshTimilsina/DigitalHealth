@@ -5,20 +5,22 @@ class UVScaleItem extends StatelessWidget {
   final String label;
   final bool isSelected;
   final Color color;
-  UVScaleItem(
-      {super.key,
-      required this.color,
-      required this.range,
-      required this.label,
-      required this.isSelected});
+
+  UVScaleItem({
+    super.key,
+    required this.color,
+    required this.range,
+    required this.label,
+    required this.isSelected,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-      padding: const EdgeInsets.all(16.0),
+      margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
+      padding: const EdgeInsets.all(12.0),
       decoration: BoxDecoration(
-        color: isSelected ? Color(0xFF9639DC) : Colors.white,
+        color: isSelected ? color : Colors.white,
         borderRadius: BorderRadius.circular(12.0),
         boxShadow: [
           BoxShadow(
@@ -33,10 +35,13 @@ class UVScaleItem extends StatelessWidget {
           Text(
             range,
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 16,
               fontWeight: FontWeight.bold,
               color: isSelected ? Colors.white : Colors.black,
             ),
+          ),
+          SizedBox(
+            height: 10,
           ),
           Text(
             label,

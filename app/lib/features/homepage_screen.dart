@@ -1,6 +1,12 @@
+import 'dart:developer';
+
 import 'package:app/components/custom_painter.dart';
 import 'package:app/components/uv_scale.dart';
+
+import 'package:app/models/uv_model.dart';
+import 'package:app/services/weather_service.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 
 class UVIndexScreen extends StatefulWidget {
   const UVIndexScreen({super.key});
@@ -10,34 +16,94 @@ class UVIndexScreen extends StatefulWidget {
 }
 
 class _UVIndexScreenState extends State<UVIndexScreen> {
-  double uv = 10;
   String location = 'Gongabu, Kathmandu';
+  double uv = 5.0;
 
-  final List<Map<String, dynamic>> uvScaleData = [
-    {'range': '1-2', 'label': 'Low', 'isSelected': false},
-    {'range': '2-5', 'label': 'Medium', 'isSelected': false},
-    {'range': '5-7', 'label': 'High', 'isSelected': false},
-    {'range': '7-10', 'label': 'Very High', 'isSelected': false},
-    {'range': '10+', 'label': 'Extreme', 'isSelected': false},
-  ];
+  Future<void> _getLocationAndUVIndex() async {
+    try {
+      LocationPermission permission;
+      permission = await Geolocator.requestPermission();
+      Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
 
-  @override
-  void initState() {
-    super.initState();
-    updateSelectedUVRange();
+      WeatherData model = await WeatherService()
+          .fetchCurrentWeather(position.latitude, position.longitude);
+
+      setState(() {
+        uv = model.current.uv;
+        location = "${model.location.name}\n${model.location.country}";
+      });
+      updateSelectedUVRange();
+    } catch (e) {
+      log("Error getting location: $e");
+    }
   }
+
+  // Updated UV scale data with specific colors, body, and top text for each range
+  final List<Map<String, dynamic>> uvScaleData = [
+    {
+      'range': '0-3',
+      'label': 'Low',
+      'color': const Color(0xFF299501),
+      'isSelected': false,
+      'top': 'Minimal Danger from Sun\'s UV Rays',
+      'body':
+          'Wear UV-blocking sunglasses to protect your eyes, and of course, to look good.\nApply sunscreen with an SPF of 15–20 to protect your skin from UV rays.',
+      'spf': '15'
+    },
+    {
+      'range': '3-6',
+      'label': 'Moderate',
+      'color': const Color(0xFFFEED21),
+      'isSelected': false,
+      'top': 'Moderate Risk of Harm from Sun Exposure',
+      'body':
+          'Wear UV-blocking sunglasses and apply sunscreen with an SPF of at least 30.',
+      'spf': '30'
+    },
+    {
+      'range': '6-8',
+      'label': 'High',
+      'color': const Color(0xFFF95901),
+      'isSelected': false,
+      'top': 'Moderate Risk of Harm from Unprotected Sun Exposure',
+      'body':
+          'Generously apply broad-spectrum SPF 30+ sunscreen every 2 hours, even on cloudy days, and after swimming or sweating. Watch out for bright surfaces, like sand, water, and snow, which reflect UV and increase exposure.',
+      'spf': '30+'
+    },
+    {
+      'range': '8-10',
+      'label': 'Very High',
+      'color': const Color(0xFFC8224B),
+      'isSelected': false,
+      'top': 'High Risk of Harm from Unprotected Sun Exposure',
+      'body':
+          'Try to avoid the sun between 11 a.m. and 4 p.m. Otherwise, seek shade, cover up, wear a hat and sunglasses, and use sunscreen with SPF 50.',
+      'spf': '50'
+    },
+    {
+      'range': '10+',
+      'label': 'Extreme',
+      'color': const Color(0xFF6D4ACC),
+      'isSelected': false,
+      'top': 'Very High Risk of Harm from Unprotected Sun Exposure',
+      'body':
+          'Apply sunscreen with an SPF of 50+, reapply frequently, and wear UV-blocking sunglasses, a wide-brimmed hat to protect the face and neck, and protective clothing to cover exposed skin.',
+      'spf': '50+'
+    },
+  ];
 
   // Method to update the 'isSelected' property based on the UV index
   void updateSelectedUVRange() {
     for (var item in uvScaleData) {
       final range = item['range'];
-      if (range == '1-2' && uv < 2) {
+      if (range == '0-3' && uv < 3) {
         item['isSelected'] = true;
-      } else if (range == '2-5' && uv >= 2 && uv < 5) {
+      } else if (range == '3-6' && uv >= 3 && uv < 6) {
         item['isSelected'] = true;
-      } else if (range == '5-7' && uv >= 5 && uv < 7) {
+      } else if (range == '6-8' && uv >= 6 && uv < 8) {
         item['isSelected'] = true;
-      } else if (range == '7-10' && uv >= 7 && uv < 10) {
+      } else if (range == '8-10' && uv >= 8 && uv < 10) {
         item['isSelected'] = true;
       } else if (range == '10+' && uv >= 10) {
         item['isSelected'] = true;
@@ -49,26 +115,51 @@ class _UVIndexScreenState extends State<UVIndexScreen> {
 
   // Method to map UV index to colors
   Color getSunColor() {
-    if (uv <= 2) return Colors.green;
-    if (uv <= 5) return Colors.yellow;
-    if (uv <= 7) return Colors.orange;
-    if (uv <= 10) return Colors.red;
-    return Colors.purple;
+    var selectedItem =
+        uvScaleData.firstWhere((item) => true == item['isSelected']);
+    return selectedItem['color'];
+  }
+
+  String getSPF() {
+    var selectedItem =
+        uvScaleData.firstWhere((item) => true == item['isSelected']);
+    return selectedItem['spf'];
+  }
+
+  String getBody() {
+    var selectedItem =
+        uvScaleData.firstWhere((item) => true == item['isSelected']);
+    return selectedItem['body'];
+  }
+
+  String getDescription() {
+    var selectedItem =
+        uvScaleData.firstWhere((item) => true == item['isSelected']);
+    return selectedItem['top'];
+  }
+
+  Color getbodyText() {
+    var selectedItem =
+        uvScaleData.firstWhere((item) => true == item['isSelected']);
+    return selectedItem['color'];
   }
 
   Color getGradientYellowColor() {
-    if (uv <= 2) return Colors.green.shade300;
-    if (uv <= 5) return Colors.yellow.shade300;
-    if (uv <= 7) return Colors.orange.shade300;
-    if (uv <= 10) return Colors.red.shade300;
-    return Colors.purple.shade300;
+    var selectedItem =
+        uvScaleData.firstWhere((item) => true == item['isSelected']);
+    return selectedItem['color'].withOpacity(0.6); // Adjust opacity if needed
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _getLocationAndUVIndex();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      extendBodyBehindAppBar: true,
+      backgroundColor: Colors.grey,
       body: Stack(
         children: [
           Positioned(
@@ -102,7 +193,7 @@ class _UVIndexScreenState extends State<UVIndexScreen> {
                 range: item['range'],
                 label: item['label'],
                 isSelected: item['isSelected'],
-                color: Colors.purple,
+                color: item['color'],
               );
             },
           ),
@@ -143,43 +234,74 @@ class _UVIndexScreenState extends State<UVIndexScreen> {
                     ),
                   ],
                 ),
-                const Text(
-                  'Be Protected from Sun',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.white,
+                SizedBox(
+                  width: 150,
+                  child: Text(
+                    getDescription().toString(),
+                    textAlign: TextAlign.right,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
-                const SizedBox(height: 10),
-                Text(
-                  location,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    color: Colors.black,
-                  ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    const Icon(Icons.location_pin),
+                    Text(
+                      location,
+                      textAlign: TextAlign.left,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
+          Positioned(
+              bottom: 120,
+              left: MediaQuery.of(context).size.width * 0.1,
+              right: MediaQuery.of(context).size.width * 0.1,
+              child: Center(
+                child: Container(
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12)),
+                  width: MediaQuery.of(context).size.width * 0.8,
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                        left: 24.0, top: 12, bottom: 16, right: 24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'SPF  ${getSPF()}',
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 26,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 12,
+                        ),
+                        Text(
+                          getBody(),
+                          style: const TextStyle(
+                              color: Colors.black, fontSize: 12),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ))
         ],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home, color: Colors.purple),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.monitor_heart_outlined, color: Colors.black),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.menu, color: Colors.black),
-            label: '',
-          ),
-        ],
-        currentIndex: 0,
-        backgroundColor: Colors.white,
       ),
     );
   }

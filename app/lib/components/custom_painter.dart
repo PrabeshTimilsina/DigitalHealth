@@ -4,7 +4,7 @@ class CustomShapePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     var paint = Paint()
-      ..color = Colors.white
+      ..color = Color(0xffF2F0EF)
       ..strokeWidth = 15;
 
     var path = Path();

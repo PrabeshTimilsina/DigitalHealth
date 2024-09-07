@@ -1,20 +1,44 @@
-class TextExtraction {
-  final String reportParagraph;
-  final String summarizeText;
+import 'dart:developer';
 
-  TextExtraction({required this.reportParagraph, required this.summarizeText});
+class MedicalReport {
+  String reportParagraph;
+  SummarizeText summarizeText;
 
-  factory TextExtraction.fromJson(Map<String, dynamic> json) {
-    return TextExtraction(
+  MedicalReport({required this.reportParagraph, required this.summarizeText});
+
+  factory MedicalReport.fromJson(Map<String, dynamic> json) {
+    log(json.toString());
+    return MedicalReport(
       reportParagraph: json['Report Pargraph'],
-      summarizeText: json['Summarize_text'],
+      summarizeText: SummarizeText.fromJson(json['Summarize_text']),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'Report Pargraph': reportParagraph,
-      'Summarize_text': summarizeText,
+      'Summarize_text': summarizeText.toJson(),
+    };
+  }
+}
+
+class SummarizeText {
+  String findings;
+  String summary;
+
+  SummarizeText({required this.findings, required this.summary});
+
+  factory SummarizeText.fromJson(Map<String, dynamic> json) {
+    return SummarizeText(
+      findings: json['findings'],
+      summary: json['summary'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'findings': findings,
+      'summary': summary,
     };
   }
 }

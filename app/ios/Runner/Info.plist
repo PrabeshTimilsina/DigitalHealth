@@ -11,6 +11,7 @@
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
+	
 	<string>6.0</string>
 	<key>CFBundleName</key>
 	<string>app</string>
@@ -26,6 +27,12 @@
 	<true/>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Reason why we need access to your location</string>
+	<key>NSCameraUsageDescription</key>
+	<string>To capture profile photo please grant camera access</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>App needs access to photo lib for profile images</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
 	<key>UISupportedInterfaceOrientations</key>
@@ -45,5 +52,10 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+   <key>NSAllowsArbitraryLoads</key><true/>
+</dict>
+
 </dict>
 </plist>
