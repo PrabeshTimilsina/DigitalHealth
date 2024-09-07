@@ -1,70 +1,158 @@
+import 'package:app/components/custom_painter.dart';
+import 'package:app/components/uv_scale.dart';
 import 'package:flutter/material.dart';
 
-class UVIndexScreen extends StatelessWidget {
+class UVIndexScreen extends StatefulWidget {
   const UVIndexScreen({super.key});
+
+  @override
+  State<UVIndexScreen> createState() => _UVIndexScreenState();
+}
+
+class _UVIndexScreenState extends State<UVIndexScreen> {
+  double uv = 10;
+  String location = 'Gongabu, Kathmandu';
+
+  final List<Map<String, dynamic>> uvScaleData = [
+    {'range': '1-2', 'label': 'Low', 'isSelected': false},
+    {'range': '2-5', 'label': 'Medium', 'isSelected': false},
+    {'range': '5-7', 'label': 'High', 'isSelected': false},
+    {'range': '7-10', 'label': 'Very High', 'isSelected': false},
+    {'range': '10+', 'label': 'Extreme', 'isSelected': false},
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    updateSelectedUVRange();
+  }
+
+  // Method to update the 'isSelected' property based on the UV index
+  void updateSelectedUVRange() {
+    for (var item in uvScaleData) {
+      final range = item['range'];
+      if (range == '1-2' && uv < 2) {
+        item['isSelected'] = true;
+      } else if (range == '2-5' && uv >= 2 && uv < 5) {
+        item['isSelected'] = true;
+      } else if (range == '5-7' && uv >= 5 && uv < 7) {
+        item['isSelected'] = true;
+      } else if (range == '7-10' && uv >= 7 && uv < 10) {
+        item['isSelected'] = true;
+      } else if (range == '10+' && uv >= 10) {
+        item['isSelected'] = true;
+      } else {
+        item['isSelected'] = false;
+      }
+    }
+  }
+
+  // Method to map UV index to colors
+  Color getSunColor() {
+    if (uv <= 2) return Colors.green;
+    if (uv <= 5) return Colors.yellow;
+    if (uv <= 7) return Colors.orange;
+    if (uv <= 10) return Colors.red;
+    return Colors.purple;
+  }
+
+  Color getGradientYellowColor() {
+    if (uv <= 2) return Colors.green.shade300;
+    if (uv <= 5) return Colors.yellow.shade300;
+    if (uv <= 7) return Colors.orange.shade300;
+    if (uv <= 10) return Colors.red.shade300;
+    return Colors.purple.shade300;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        actions: const [],
-      ),
+      backgroundColor: Colors.white,
       extendBodyBehindAppBar: true,
       body: Stack(
         children: [
-          Container(
-            height: MediaQuery.of(context).size.height * 0.4,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topRight,
-                end: Alignment.bottomLeft,
-                colors: [Colors.amber.shade300, Colors.purple.shade200],
+          Positioned(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topRight,
+                  end: Alignment.bottomLeft,
+                  colors: [getGradientYellowColor(), Colors.purple],
+                ),
               ),
             ),
           ),
-          const Positioned(
+          Positioned(
+            bottom: 0,
+            child: CustomPaint(
+              size: Size(MediaQuery.of(context).size.width,
+                  MediaQuery.of(context).size.height * 0.5),
+              painter: CustomShapePainter(),
+            ),
+          ),
+          ListView.builder(
+            padding: EdgeInsets.only(
+                left: 20,
+                right: MediaQuery.of(context).size.width * 0.62,
+                top: MediaQuery.of(context).size.height * 0.15),
+            itemCount: uvScaleData.length,
+            itemBuilder: (context, index) {
+              final item = uvScaleData[index];
+              return UVScaleItem(
+                item['range'],
+                item['label'],
+                item['isSelected'],
+              );
+            },
+          ),
+          Positioned(
             top: 130,
-            right: 15,
+            right: 24,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  'UV',
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
+                Icon(
+                  Icons.sunny,
+                  size: 40,
+                  color: getSunColor(),
                 ),
-                Text(
-                  '10',
-                  style: TextStyle(
-                    fontSize: 50,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      '$uv',
+                      style: const TextStyle(
+                        fontSize: 70,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const Text(
+                      'UV',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
                 ),
-                SizedBox(height: 10),
-                Text(
+                const Text(
                   'Be Protected from Sun',
                   style: TextStyle(
                     fontSize: 18,
                     color: Colors.white,
                   ),
                 ),
+                const SizedBox(height: 10),
+                Text(
+                  location,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    color: Colors.black,
+                  ),
+                ),
               ],
-            ),
-          ),
-          Positioned(
-            bottom: 5,
-            child: Container(
-              height: 500,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-              ),
             ),
           ),
         ],
@@ -86,70 +174,6 @@ class UVIndexScreen extends StatelessWidget {
         ],
         currentIndex: 0,
         backgroundColor: Colors.white,
-      ),
-    );
-  }
-}
-
-class UVScale extends StatelessWidget {
-  const UVScale({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        UVScaleItem('1-2', 'Low', false),
-        UVScaleItem('3-5', 'Medium', false),
-        UVScaleItem('6-7', 'High', false),
-        UVScaleItem('8-10', 'Very High', true),
-        UVScaleItem('11+', 'Extreme', false),
-      ],
-    );
-  }
-}
-
-class UVScaleItem extends StatelessWidget {
-  final String range;
-  final String label;
-  final bool isSelected;
-
-  UVScaleItem(this.range, this.label, this.isSelected, {super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-      padding: const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        color: isSelected ? Colors.purple : Colors.white,
-        borderRadius: BorderRadius.circular(12.0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 8.0,
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            range,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: isSelected ? Colors.white : Colors.black,
-            ),
-          ),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 14,
-              color: isSelected ? Colors.white70 : Colors.black54,
-            ),
-          ),
-        ],
       ),
     );
   }
