@@ -14,14 +14,17 @@ def test():
 @app.route('/predict', methods=['POST'])
 def predict():
     if request.method == 'POST':
+       
         file = request.files['file']
-        img_bytes = file.read()
-        value = get_prediction(image_bytes=img_bytes)
+        upload_path=os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+        file.save(upload_path)
+        value = get_prediction(image_path=upload_path)
         result=''
         if(value.item()==1):
             result="Malignant"
         else:
-            result='Bening'
+            result='Benign'
+    
         return jsonify({'prediction': value.item(),'result':result})
 
 

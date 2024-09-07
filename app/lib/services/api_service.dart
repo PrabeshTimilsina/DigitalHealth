@@ -7,7 +7,7 @@ import 'package:app/models/prediction_model.dart';
 
 class ApiService {
   ApiService();
-  final Dio _dio = Dio(BaseOptions(baseUrl: 'http://192.168.1.14:5000'));
+  final Dio _dio = Dio(BaseOptions(baseUrl: 'http://127.0.0.1:5001'));
 
   Future<Prediction?> predict(File image) async {
     try {
