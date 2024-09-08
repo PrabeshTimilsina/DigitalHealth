@@ -5,6 +5,7 @@ import 'package:app/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class CameraScreen extends StatefulWidget {
   const CameraScreen({super.key});
@@ -139,14 +140,6 @@ class _CameraScreenState extends State<CameraScreen> {
                     topLeft: Radius.circular(24),
                     topRight: Radius.circular(24),
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      spreadRadius: 5,
-                      blurRadius: 10,
-                      offset: const Offset(0, -5),
-                    ),
-                  ],
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -188,8 +181,8 @@ class _CameraScreenState extends State<CameraScreen> {
   }
 
   Future<void> _pickImageFromCamera() async {
-    final returnedImage =
-        await ImagePicker().pickImage(source: ImageSource.camera);
+    final returnedImage = await ImagePicker()
+        .pickImage(source: ImageSource.camera, maxWidth: 500, maxHeight: 500);
 
     if (returnedImage == null) return;
 
@@ -201,6 +194,11 @@ class _CameraScreenState extends State<CameraScreen> {
   }
 
   Future<void> _pickImageFromGallery() async {
+    final permission = Permission.location;
+
+    if (await permission.isDenied) {
+      await permission.request();
+    }
     final returnedImage =
         await ImagePicker().pickImage(source: ImageSource.gallery);
 

@@ -9,6 +9,16 @@ class BottomNavBar extends StatefulWidget {
 }
 
 class _BottomNavBarState extends State<BottomNavBar> {
+  int _selectedIndex = 0; // Track the selected index
+
+  // Update selected index and navigate to the corresponding page
+  void _onItemTapped(int index, String route) {
+    setState(() {
+      _selectedIndex = index;
+    });
+    context.go(route);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -29,21 +39,30 @@ class _BottomNavBarState extends State<BottomNavBar> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               IconButton(
-                icon: const Icon(Icons.home, color: Colors.black),
+                icon: Icon(
+                  Icons.home,
+                  color: _selectedIndex == 0 ? Colors.purple : Colors.black,
+                ),
                 onPressed: () {
-                  context.go('/');
+                  _onItemTapped(0, '/');
                 },
               ),
               IconButton(
-                icon: const Icon(Icons.camera, color: Colors.black),
+                icon: Icon(
+                  Icons.control_camera_outlined,
+                  color: _selectedIndex == 1 ? Colors.purple : Colors.black,
+                ),
                 onPressed: () {
-                  context.go('/camera');
+                  _onItemTapped(1, '/camera');
                 },
               ),
               IconButton(
-                icon: const Icon(Icons.menu, color: Colors.black),
+                icon: Icon(
+                  Icons.menu,
+                  color: _selectedIndex == 2 ? Colors.purple : Colors.black,
+                ),
                 onPressed: () {
-                  context.go('/report');
+                  _onItemTapped(2, '/report');
                 },
               ),
             ],
