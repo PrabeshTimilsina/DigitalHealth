@@ -7,6 +7,7 @@ import 'package:app/models/uv_model.dart';
 import 'package:app/services/weather_service.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class UVIndexScreen extends StatefulWidget {
   const UVIndexScreen({super.key});
@@ -22,8 +23,13 @@ class _UVIndexScreenState extends State<UVIndexScreen> {
 
   Future<void> _getLocationAndUVIndex() async {
     try {
-      LocationPermission permission;
-      permission = await Geolocator.requestPermission();
+      LocationPermission locattionpermission;
+      final permission = Permission.location;
+
+      if (await permission.isDenied) {
+        await permission.request();
+      }
+      locattionpermission = await Geolocator.requestPermission();
       Position position = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.high);
 
@@ -32,7 +38,7 @@ class _UVIndexScreenState extends State<UVIndexScreen> {
 
       setState(() {
         uv = model.current.uv;
-        location = "${model.location.name}\n${model.location.country}";
+        location = "${model.location.name},${model.location.country}";
         updateSelectedUVRange(); // Update selected UV range
       });
     } catch (e) {
@@ -54,7 +60,7 @@ class _UVIndexScreenState extends State<UVIndexScreen> {
     {
       'range': '3-6',
       'label': 'Moderate',
-      'color': const Color(0xFFFEED21),
+      'color': const Color.fromARGB(255, 192, 179, 40),
       'top': 'Moderate Risk of Harm from Sun Exposure',
       'body':
           'Wear UV-blocking sunglasses and apply sunscreen with an SPF of at least 30.',
@@ -136,7 +142,7 @@ class _UVIndexScreenState extends State<UVIndexScreen> {
   Color getGradientYellowColor() {
     return selectedIndex != -1
         ? uvScaleData[selectedIndex]['color']
-        : Colors.yellow;
+        : Colors.yellow.withOpacity(6);
   }
 
   @override
@@ -157,7 +163,7 @@ class _UVIndexScreenState extends State<UVIndexScreen> {
                 gradient: LinearGradient(
                   begin: Alignment.topRight,
                   end: Alignment.bottomLeft,
-                  colors: [getGradientYellowColor(), Colors.purple],
+                  colors: [getGradientYellowColor(), const Color(0xFFA16DC8)],
                 ),
               ),
             ),
@@ -224,7 +230,7 @@ class _UVIndexScreenState extends State<UVIndexScreen> {
                   ],
                 ),
                 SizedBox(
-                  width: 150,
+                  width: 200,
                   child: Text(
                     getDescription(),
                     textAlign: TextAlign.right,
@@ -238,13 +244,18 @@ class _UVIndexScreenState extends State<UVIndexScreen> {
                 const SizedBox(height: 20),
                 Row(
                   children: [
-                    const Icon(Icons.location_pin),
+                    const Icon(
+                      Icons.location_pin,
+                      color: Color(0xff77D1B6),
+                    ),
+                    const SizedBox(
+                      width: 4,
+                    ),
                     Text(
                       location,
                       textAlign: TextAlign.left,
                       style: const TextStyle(
                         fontSize: 13,
-                        fontWeight: FontWeight.bold,
                         color: Colors.black,
                       ),
                     ),

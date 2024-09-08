@@ -8,6 +8,7 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:scanning_effect/scanning_effect.dart';
 
 class ReportScreen extends StatefulWidget {
@@ -24,6 +25,11 @@ class _ReportScreenState extends State<ReportScreen> {
   bool _isTextExtracted = false;
   MedicalReport? _textExtraction;
   Future<void> _handleImageSelection() async {
+    final permission = Permission.location;
+
+    if (await permission.isDenied) {
+      await permission.request();
+    }
     final imagePath = await ImagePickerService.pickImage();
     if (imagePath != null) {
       setState(() {
